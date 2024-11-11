@@ -5,7 +5,8 @@
   "scripts": {
     "start": "bun server/index.ts",
     "dev": "bun --watch server/index.ts",
-    "build": "bun run ./frontend build"
+    "frontend": "bun run --cwd ./frontend dev",
+    "build": "bun run --cwd ./frontend build"
   },
   "devDependencies": {
     "@types/bun": "latest"
