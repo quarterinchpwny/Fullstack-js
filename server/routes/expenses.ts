@@ -10,15 +10,31 @@ const expenseSchema = z.object({
 
 type Expense = z.infer<typeof expenseSchema>;
 
-let fakeExpenses: Expense[] = [];
+let fakeExpenses: Expense[] = [
+  { id: 1, title: "Groceries", amount: 50 },
+  { id: 2, title: "Gas", amount: 30 },
+  { id: 3, title: "Rent", amount: 1000 },
+  { id: 4, title: "Car Payment", amount: 300 },
+  { id: 5, title: "Insurance", amount: 100 },
+];
 
 export const expensesRoute = new Hono()
   .get("/", (c) => {
-    return c.json({ expenses: fakeExpenses });
+    return c.json({
+      expenses: fakeExpenses,
+    });
+  })
+  .get("/total-spent", (c) => {
+    return c.json({
+      totalSpent: fakeExpenses.reduce(
+        (acc, expense) => acc + expense.amount,
+        0
+      ),
+    });
   })
 
   .post("/", zValidator("json", expenseSchema), async (c) => {
-    const body = await c.req.valid("json");
+    const body = c.req.valid("json");
     const expense = expenseSchema.parse(body);
 
     fakeExpenses.push({ ...expense, id: fakeExpenses.length + 1 });
