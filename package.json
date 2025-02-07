@@ -9,13 +9,17 @@
     "build": "bun run --cwd ./frontend build"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/bun": "^1.2.2",
+    "drizzle-kit": "^0.30.4"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.1",
+    "better-sqlite3": "^11.8.1",
+    "drizzle-orm": "^0.39.2",
     "hono": "^4.6.8",
     "zod": "^3.23.8"
   }
