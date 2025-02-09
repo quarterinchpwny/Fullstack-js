@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { db, expensesTable } from "../db";
+import { db } from "../db";
+import { expensesTable } from "../db/schema";
 import { eq, sql } from "drizzle-orm";
 import { insertExpenseSchema, selectExpenseSchema } from "../db/schema";
 
