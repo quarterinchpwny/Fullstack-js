@@ -9,6 +9,11 @@ import {
   CardTitle,
 } from "./components/ui/card";
 
+import { hc } from "hono/client";
+import { type ApiRoutes } from "../../server/app";
+
+const client = hc<ApiRoutes>("/");
+
 function App() {
   const [totalSpent, setTotalSpent] = useState(0);
   const [expensesList, setExpensesList] = useState<
@@ -16,7 +21,7 @@ function App() {
   >([]);
   useEffect(() => {
     async function getTotalSpent() {
-      const response = await fetch("api/expenses/total-spent");
+      const response = await client.api.expenses["total-spent"].$get();
       const data = await response.json();
       console.log(data);
       setTotalSpent(data.totalSpent);

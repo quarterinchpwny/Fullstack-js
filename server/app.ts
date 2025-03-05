@@ -9,8 +9,7 @@ app.use("*", logger());
 app.get("*", serveStatic({ root: "./frontend/dist" }));
 app.get("*", serveStatic({ root: "./frontend/dist/index.html" }));
 
-// API route
-app.get("/api", (c) => c.text("Hello from Bun + Hono API!"));
-app.route("/api/expenses", expensesRoute);
+const apiRoutes = app.basePath("/api").route("/expenses", expensesRoute);
 
 export default app;
+export type ApiRoutes = typeof apiRoutes;
