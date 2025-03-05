@@ -3,20 +3,30 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 
 const expenseSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.number().int().positive().optional(),
   title: z.string().min(1).max(50),
   amount: z.number().int().positive(),
 });
 
 type Expense = z.infer<typeof expenseSchema>;
 
-let fakeExpenses: Expense[] = [];
+let fakeExpenses: Expense[] = [
+  { id: 1, title: "Groceries", amount: 50 },
+  { id: 2, title: "Gas", amount: 30 },
+  { id: 3, title: "Rent", amount: 1000 },
+];
 
 export const expensesRoute = new Hono()
   .get("/", (c) => {
     return c.json({ expenses: fakeExpenses });
   })
-
+  .get("/total-spent", async (c) => {
+    const totalSpent = fakeExpenses.reduce(
+      (total, expense) => total + expense.amount,
+      0
+    );
+    return c.json({ totalSpent });
+  })
   .post("/", zValidator("json", expenseSchema), async (c) => {
     const body = await c.req.valid("json");
     const expense = expenseSchema.parse(body);
