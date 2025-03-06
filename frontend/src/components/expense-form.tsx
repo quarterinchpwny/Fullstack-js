@@ -3,25 +3,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function ExpenseForm({
   onSubmit,
   isSubmitting,
   error,
+  categories,
 }: {
-  onSubmit: (data: { title: string; amount: number }) => void;
+  onSubmit: (data: {
+    title: string;
+    amount: number;
+    categoryId: string;
+  }) => void;
   isSubmitting: boolean;
   error: string | null;
+  categories: { id: string; name: string }[];
 }) {
   const form = useForm({
     defaultValues: {
       title: "",
       amount: "",
+      categoryId: "",
     },
     onSubmit: async ({ value }) => {
       onSubmit({
         title: value.title,
         amount: Number(value.amount),
+        categoryId: value.categoryId,
       });
     },
   });
@@ -76,6 +91,46 @@ export function ExpenseForm({
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
               />
+              {field.state.meta.errors && (
+                <p className="text-sm text-destructive">
+                  {field.state.meta.errors}
+                </p>
+              )}
+            </div>
+          )}
+        </form.Field>
+
+        <form.Field
+          name="categoryId"
+          validators={{
+            onChange: ({ value }) =>
+              !value ? "Category is required" : undefined,
+          }}
+        >
+          {(field) => (
+            <div className="space-y-2">
+              <Label htmlFor="categoryId">Category</Label>
+              <Select
+                value={field.state.value ? String(field.state.value) : ""}
+                onValueChange={(value) => {
+                  console.log("Selected Value:", value);
+                  field.handleChange(value);
+                }}
+                disabled={categories.length === 0}
+                required
+              >
+                <SelectTrigger id="categoryId">
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={String(category.id)}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               {field.state.meta.errors && (
                 <p className="text-sm text-destructive">
                   {field.state.meta.errors}

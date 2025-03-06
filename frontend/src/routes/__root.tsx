@@ -11,14 +11,11 @@ function NavBar() {
       <Link to="/" className="[&.active]:font-bold">
         Home
       </Link>{" "}
-      <Link to="/about" className="[&.active]:font-bold">
+      {/* <Link to="/about" className="[&.active]:font-bold">
         About
-      </Link>
+      </Link> */}
       <Link to="/expenses" className="[&.active]:font-bold">
         List
-      </Link>
-      <Link to="/create-expense" className="[&.active]:font-bold">
-        Create
       </Link>
     </div>
   );
@@ -31,7 +28,9 @@ function Root() {
         <NavBar />
       </div>
       <hr />
-      <Outlet />
+      <div className="container mx-auto p-4 max-w-5xl mt-2 ">
+        <Outlet />
+      </div>
     </>
   );
 }

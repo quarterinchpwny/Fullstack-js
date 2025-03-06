@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 
 import {
   Card,
@@ -31,29 +32,40 @@ function Index() {
 
   return (
     <>
-      <div className="container mx-auto py-10">
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Spent</CardTitle>
-            <CardDescription>Your total expenses to date</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isPending ? (
-              <p className="text-gray-500">Loading...</p>
-            ) : data && data.totalSpent !== 0 ? (
+      <Card>
+        <CardHeader>
+          <CardTitle>Total Spent</CardTitle>
+          <CardDescription>Your total expenses to date</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isPending ? (
+            <p className="text-gray-500">Loading...</p>
+          ) : data &&
+            data.totalSpent !== undefined &&
+            data.totalSpent !== null ? (
+            <div>
               <p className="text-2xl font-bold">
-                $ {data.totalSpent.toFixed(2)}
+                $
+                {Number(data.totalSpent).toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
               </p>
-            ) : error ? (
-              <p className="text-red-500">
-                Failed to load expenses ({error.message})
+              <p className="text-gray-500">
+                <Link to="/expenses">
+                  {data.expensesCount} expenses recorded
+                </Link>
               </p>
-            ) : (
-              <p className="text-gray-500">No expenses recorded yet</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            </div>
+          ) : error ? (
+            <p className="text-red-500">
+              Failed to load expenses ({error.message})
+            </p>
+          ) : (
+            <p className="text-gray-500">No expenses recorded yet</p>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 }
