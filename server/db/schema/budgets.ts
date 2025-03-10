@@ -6,35 +6,40 @@ import {
   timestamp,
   text,
   integer,
+  boolean,
 } from "drizzle-orm/pg-core";
+
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { categories } from "./categories";
 import { relations } from "drizzle-orm";
 
-export const expenses = pgTable("expenses", {
+export const budgets = pgTable("budgets", {
   id: serial("id").primaryKey(),
-  title: varchar("title", { length: 255 }).notNull(),
+  categoryId: integer("category_id")
+    .references(() => categories.id)
+    .notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  date: timestamp("date").notNull().defaultNow(),
-  description: text("description"),
-  categoryId: integer("category_id").references(() => categories.id),
+  frequency: varchar("frequency", {
+    enum: ["monthly", "weekly", "daily"],
+  }).notNull(),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const expensesRelations = relations(expenses, ({ one }) => ({
+export const budgetsRelations = relations(budgets, ({ one }) => ({
   category: one(categories, {
-    fields: [expenses.categoryId],
+    fields: [budgets.categoryId],
     references: [categories.id],
   }),
 }));
-
-export const insertExpensesSchema = createInsertSchema(expenses, {
-  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
+export const insertBudgetSchema = createInsertSchema(budgets, {
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/, {
     message: "Amount must be a valid monetary value",
   }),
+  frequency: z.enum(["monthly", "weekly", "daily"]),
+  isActive: z.boolean(),
 });
-// Schema for selecting a Expenses - can be used to validate API responses
-export const selectExpensesSchema = createSelectSchema(expenses);
+
+export const selectBudgetSchema = createSelectSchema(budgets);
