@@ -73,14 +73,10 @@ function Transactions() {
   const handleCreateTransaction = (formData: {
     name: string;
     amount: number;
-    categoryId: string;
-    transactionTypeId: string;
+    categoryId: number;
+    transationTypeId: number;
   }) => {
-    createTransactionMutation.mutate({
-      ...formData,
-      categoryId: parseInt(formData.categoryId, 10),
-      transactionTypeId: parseInt(formData.transactionTypeId, 10),
-    });
+    createTransactionMutation.mutate(formData);
   };
 
   const DeleteButton = ({ expenseId }: { expenseId: number }) => {
