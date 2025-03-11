@@ -5,23 +5,28 @@ const client = hc<ApiRoutes>("/");
 
 export const api = client.api;
 
-export async function getAllExpenses() {
-  const response = await api.expenses.$get();
+export async function getAllTransactions() {
+  const response = await api.transactions.$get();
   if (!response.ok) {
     throw new Error("Failed to fetch data");
   }
   return response.json();
 }
 
-export async function createExpense(data: {
-  title: string;
+export async function createTransaction(data: {
+  name: string;
   amount: number;
   categoryId: number;
+  transationTypeId: number;
 }) {
-  const response = await api.expenses.$post({
+  const response = await api.transactions.$post({
     json: {
       ...data,
-      amount: data.amount.toString(),
+      amount: data.amount,
+      isRecurring: false,
+      recurringFrequency: null,
+      transationTypeId: data.transationTypeId,
+      categoryId: data.categoryId,
     },
   });
 
@@ -33,9 +38,8 @@ export async function createExpense(data: {
 
   return response.json();
 }
-
-export async function deleteExpense({ id }: { id: number }) {
-  const res = await api.expenses[":id{[0-9]+}"].$delete({
+export async function deleteTransaction({ id }: { id: number }) {
+  const res = await api.transactions[":id{[0-9]+}"].$delete({
     param: { id: id.toString() },
   });
 

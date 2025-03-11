@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getAllExpenses, deleteExpense, createExpense } from "@/lib/api";
+import {
+  getAllTransactions,
+  deleteTransaction,
+  createTransaction,
+} from "@/lib/api";
 import {
   Table,
   TableBody,
@@ -12,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PlusIcon, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { ExpenseForm } from "@/components/expense-form";
+import { TransactionForm } from "@/components/transaction-form";
 import {
   Dialog,
   DialogContent,
@@ -24,21 +28,21 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/expenses")({
-  component: Expenses,
+export const Route = createFileRoute("/transaction")({
+  component: Transactions,
 });
 
-function Expenses() {
+function Transactions() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const {
-    data: expensesData,
+    data: transactionData,
     isPending,
     error,
   } = useQuery({
-    queryKey: ["get-all-expenses"],
-    queryFn: getAllExpenses,
+    queryKey: ["get-all-transactions"],
+    queryFn: getAllTransactions,
   });
 
   const { data: categoriesData } = useQuery({
@@ -46,30 +50,36 @@ function Expenses() {
     queryFn: () => fetch("/api/categories").then((res) => res.json()),
   });
 
-  const createExpenseMutation = useMutation({
-    mutationFn: createExpense,
+  const { data: transactionTypesData } = useQuery({
+    queryKey: ["get-all-transaction-types"],
+    queryFn: () => fetch("/api/transaction-types").then((res) => res.json()),
+  });
+
+  const createTransactionMutation = useMutation({
+    mutationFn: createTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-all-expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["get-all-transactions"] });
       setIsDialogOpen(false);
     },
   });
 
-  const deleteExpenseMutation = useMutation({
-    mutationFn: deleteExpense,
+  const deleteTransactionMutation = useMutation({
+    mutationFn: deleteTransaction,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-all-expenses"] });
+      queryClient.invalidateQueries({ queryKey: ["get-all-transactions"] });
     },
   });
 
-  const handleCreateExpense = (formData: {
-    title: string;
+  const handleCreateTransaction = (formData: {
+    name: string;
     amount: number;
-
     categoryId: string;
+    transactionTypeId: string;
   }) => {
-    createExpenseMutation.mutate({
+    createTransactionMutation.mutate({
       ...formData,
       categoryId: parseInt(formData.categoryId, 10),
+      transactionTypeId: parseInt(formData.transactionTypeId, 10),
     });
   };
 
@@ -83,7 +93,7 @@ function Expenses() {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Expense</DialogTitle>
+            <DialogTitle>Delete Transaction</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete this expense? This action cannot
               be undone.
@@ -108,7 +118,9 @@ function Expenses() {
               <Button
                 className="w-full"
                 variant="destructive"
-                onClick={() => deleteExpenseMutation.mutate({ id: expenseId })}
+                onClick={() =>
+                  deleteTransactionMutation.mutate({ id: expenseId })
+                }
               >
                 Delete
               </Button>
@@ -122,13 +134,13 @@ function Expenses() {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Expenses</h1>
+        <h1 className="text-2xl font-bold">Transactions</h1>
         <Button
           onClick={() => setIsDialogOpen(true)}
           className="flex items-center gap-2"
         >
           <PlusIcon className="h-4 w-4" />
-          Add Expense
+          Add Transaction
         </Button>
       </div>
 
@@ -136,7 +148,7 @@ function Expenses() {
         <div className="flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      ) : expensesData && expensesData.transactions.length > 0 ? (
+      ) : transactionData && transactionData.transactions.length > 0 ? (
         <div className="space-y-4">
           <div className="rounded-md border">
             <Table>
@@ -149,18 +161,25 @@ function Expenses() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {expensesData?.transactions.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>{transaction.title}</TableCell>
-                    <TableCell>
-                      ${transaction.amount.toLocaleString()}
-                    </TableCell>
-                    <TableCell>{transaction.category.name}</TableCell>
-                    <TableCell>
-                      <DeleteButton expenseId={transaction.id} />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {transactionData?.transactions.map(
+                  (transaction: {
+                    id: string;
+                    name: string;
+                    amount: number;
+                    category: {
+                      name: string;
+                    };
+                  }) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell>{transaction.name}</TableCell>
+                      <TableCell>${transaction.amount}</TableCell>
+                      <TableCell>{transaction.category.name}</TableCell>
+                      <TableCell>
+                        <DeleteButton expenseId={Number(transaction.id)} />
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </div>
@@ -174,13 +193,14 @@ function Expenses() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New Expense</DialogTitle>
+            <DialogTitle>Add New Transaction</DialogTitle>
           </DialogHeader>
-          <ExpenseForm
-            onSubmit={handleCreateExpense}
-            isSubmitting={createExpenseMutation.isPending}
-            error={createExpenseMutation.error?.message || null}
+          <TransactionForm
+            onSubmit={handleCreateTransaction}
+            isSubmitting={createTransactionMutation.isPending}
+            error={createTransactionMutation.error?.message || null}
             categories={categoriesData?.categories || []}
+            transactionTypes={transactionTypesData?.transactionTypes || []}
           />
         </DialogContent>
       </Dialog>

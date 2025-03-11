@@ -11,7 +11,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { transactions } from "./transactions";
 import { relations } from "drizzle-orm";
 
-export const transactionTypes = pgTable("transaction_type", {
+export const transactionTypes = pgTable("transaction_types", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),

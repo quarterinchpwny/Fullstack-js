@@ -1,11 +1,12 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { db } from "../db";
-import { transactions as transactionTable } from "../db/schema/transactions";
-import { insertTransactionSchema } from "../db/schema/transactions";
-import { eq, desc, sum, and, count, is } from "drizzle-orm";
-import { categories as categoryTable } from "../db/schema/categories";
-import { transactionTypes as transactionTypeTable } from "../db/schema/transaction_type";
+import { db } from "../../db";
+import { transactions as transactionTable } from "../../db/schema/transactions";
+import { insertTransactionSchema } from "../../db/schema/transactions";
+import { eq, desc, sum, and, count, is, gte } from "drizzle-orm";
+import { categories as categoryTable } from "../../db/schema/categories";
+import { transactionTypes as transactionTypeTable } from "../../db/schema/transaction_types";
+import { convertKeysToSnakeCase } from "../../lib/caseFormatter";
 
 const postSchema = insertTransactionSchema.omit({
   createdAt: true,
@@ -16,24 +17,7 @@ export const transactionsRoute = new Hono()
   .get("/", async (c) => {
     try {
       const data = await db
-        .select({
-          id: transactionTable.id,
-          amount: transactionTable.amount,
-          title: transactionTable.title,
-          description: transactionTable.description,
-          createdAt: transactionTable.createdAt,
-          isRecurring: transactionTable.isRecurring,
-          recurringFrequency: transactionTable.recurringFrequency,
-          nextDueDate: transactionTable.nextDueData,
-          category: {
-            id: transactionTable.categoryId,
-            name: categoryTable.name,
-          },
-          transactionType: {
-            id: transactionTable.transationTypeId,
-            name: transactionTypeTable.name,
-          },
-        })
+        .select()
         .from(transactionTable)
         .leftJoin(
           categoryTable,
@@ -43,7 +27,19 @@ export const transactionsRoute = new Hono()
           transactionTypeTable,
           eq(transactionTable.transationTypeId, transactionTypeTable.id)
         );
-      return c.json({ transactions: data, success: true });
+
+      const flattened = data.map(
+        ({ transactions, categories, transaction_types }) => ({
+          ...transactions,
+          category: { ...categories },
+          transaction_type: { ...transaction_types },
+        })
+      );
+
+      return c.json({
+        transactions: convertKeysToSnakeCase(flattened),
+        success: true,
+      });
     } catch (error) {
       return c.json(
         { error: "Failed to fetch transactions", success: false },
@@ -130,4 +126,48 @@ export const transactionsRoute = new Hono()
         500
       );
     }
+  })
+  .get("/summary/:period?", async (c) => {
+    let baseQuery = db
+      .select({
+        category: categoryTable.name,
+        total: sum(transactionTable.amount),
+      })
+      .from(transactionTable)
+      .leftJoin(
+        categoryTable,
+        eq(transactionTable.categoryId, categoryTable.id)
+      )
+      .leftJoin(
+        transactionTypeTable,
+        eq(transactionTable.transationTypeId, transactionTypeTable.id)
+      );
+
+    const period = c.req.param("period");
+    const query =
+      period === "week"
+        ? baseQuery.where(
+            gte(
+              transactionTable.createdAt,
+              new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            )
+          )
+        : period === "month"
+        ? baseQuery.where(
+            gte(
+              transactionTable.createdAt,
+              new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+            )
+          )
+        : period === "year"
+        ? baseQuery.where(
+            gte(
+              transactionTable.createdAt,
+              new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+            )
+          )
+        : baseQuery;
+
+    const result = await query.groupBy(categoryTable.name);
+    return c.json({ result });
   });

@@ -21,6 +21,7 @@ export function ExpenseForm({
     title: string;
     amount: number;
     categoryId: string;
+    transationTypeId: string;
   }) => void;
   isSubmitting: boolean;
   error: string | null;
@@ -37,6 +38,7 @@ export function ExpenseForm({
         title: value.title,
         amount: Number(value.amount),
         categoryId: value.categoryId,
+        transationTypeId: "1",
       });
     },
   });

@@ -14,7 +14,7 @@ function NavBar() {
       {/* <Link to="/about" className="[&.active]:font-bold">
         About
       </Link> */}
-      <Link to="/expenses" className="[&.active]:font-bold">
+      <Link to="/transaction" className="[&.active]:font-bold">
         List
       </Link>
     </div>

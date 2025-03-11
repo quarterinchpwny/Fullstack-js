@@ -11,7 +11,7 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { categories } from "./categories";
-import { transactionTypes } from "./transaction_type";
+import { transactionTypes } from "./transaction_types";
 import { relations } from "drizzle-orm";
 import { debtPayments } from "./debt_payments";
 
@@ -24,17 +24,16 @@ export const transactions = pgTable("transactions", {
     .references(() => categories.id)
     .notNull(),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   isRecurring: boolean("is_recurring").notNull().default(false),
   recurringFrequency: varchar("recurring_frequency", {
-    enum: ["monthly", "weekly", "daily"],
+    enum: ["monthly", "weekly", "daily", ""],
   }),
   nextDueData: timestamp("next_due_date"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
-
 export const transactionsRelations = relations(transactions, ({ one }) => ({
   category: one(categories, {
     fields: [transactions.categoryId],
@@ -51,13 +50,12 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 }));
 
 export const insertTransactionSchema = createInsertSchema(transactions, {
-  title: z.string().min(3, { message: "Title must be at least 3 characters" }),
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, {
-    message: "Amount must be a valid monetary value",
-  }),
+  name: z.string().min(3, { message: "Name must be at least 3 characters" }),
+  amount: z.number(),
   isRecurring: z.boolean(),
-  recurringFrequency: z.enum(["monthly", "weekly", "daily"]),
+  recurringFrequency: z.enum(["monthly", "weekly", "daily"]).nullable(),
   categoryId: z.number(),
+  transationTypeId: z.number(),
 });
 
 export const selectTransactionSchema = createSelectSchema(transactions);
