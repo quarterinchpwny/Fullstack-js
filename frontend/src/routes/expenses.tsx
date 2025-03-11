@@ -136,7 +136,7 @@ function Expenses() {
         <div className="flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      ) : expensesData && expensesData.expenses.length > 0 ? (
+      ) : expensesData && expensesData.transactions.length > 0 ? (
         <div className="space-y-4">
           <div className="rounded-md border">
             <Table>
@@ -149,13 +149,15 @@ function Expenses() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {expensesData?.expenses.map((expense) => (
-                  <TableRow key={expense.id}>
-                    <TableCell>{expense.title}</TableCell>
-                    <TableCell>${expense.amount.toLocaleString()}</TableCell>
-                    <TableCell>{expense.category.name}</TableCell>
+                {expensesData?.transactions.map((transaction) => (
+                  <TableRow key={transaction.id}>
+                    <TableCell>{transaction.title}</TableCell>
                     <TableCell>
-                      <DeleteButton expenseId={expense.id} />
+                      ${transaction.amount.toLocaleString()}
+                    </TableCell>
+                    <TableCell>{transaction.category.name}</TableCell>
+                    <TableCell>
+                      <DeleteButton expenseId={transaction.id} />
                     </TableCell>
                   </TableRow>
                 ))}
