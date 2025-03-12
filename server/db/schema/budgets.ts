@@ -5,6 +5,7 @@ import {
   decimal,
   timestamp,
   text,
+  numeric,
   integer,
   boolean,
 } from "drizzle-orm/pg-core";
@@ -19,7 +20,7 @@ export const budgets = pgTable("budgets", {
   categoryId: integer("category_id")
     .references(() => categories.id)
     .notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
   frequency: varchar("frequency", {
     enum: ["monthly", "weekly", "daily"],
   }).notNull(),

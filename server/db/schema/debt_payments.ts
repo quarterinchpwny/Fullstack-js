@@ -7,6 +7,7 @@ import {
   text,
   integer,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
@@ -23,7 +24,7 @@ export const debtPayments = pgTable("debt_payments", {
   transactionId: integer("transaction_id")
     .references(() => transactions.id)
     .notNull(),
-  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }).notNull(),
+  amountPaid: numeric("amount_paid", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

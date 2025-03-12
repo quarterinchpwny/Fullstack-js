@@ -7,6 +7,7 @@ import {
   text,
   integer,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -17,8 +18,8 @@ export const goals = pgTable("goals", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  targetAmount: decimal("target_amount", { precision: 10, scale: 2 }).notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  targetAmount: numeric("target_amount", { precision: 10, scale: 2 }).notNull(),
   targetDate: timestamp("target_date"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

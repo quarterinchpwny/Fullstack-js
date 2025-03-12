@@ -2,7 +2,7 @@ import {
   pgTable,
   serial,
   varchar,
-  decimal,
+  numeric,
   timestamp,
   text,
 } from "drizzle-orm/pg-core";
@@ -13,7 +13,7 @@ import { relations } from "drizzle-orm";
 
 export const debts = pgTable("debts", {
   id: serial("id").primaryKey(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   dueData: timestamp("due_date"),

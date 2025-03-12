@@ -66,9 +66,10 @@ export const transactionsRoute = new Hono()
           ...transaction,
         })
         .returning();
+
       return c.json({ result, success: true }, 201);
     } catch (error) {
-      return c.json(
+      return c.json(``
         {
           error: "Failed to create transaction",
           success: false,
@@ -76,20 +77,6 @@ export const transactionsRoute = new Hono()
         500
       );
     }
-  })
-  .get("/total-spent", async (c) => {
-    const result = await db
-      .select({ total: sum(transactionTable.amount) })
-      .from(transactionTable)
-      .limit(1)
-      .then((res) => res[0]);
-    const countResult = await db
-      .select({ count: count() })
-      .from(transactionTable);
-    return c.json({
-      totalSpent: result.total,
-      transactionsCount: countResult[0].count,
-    });
   })
 
   .get("/:id{[0-9]+}", (c) => {

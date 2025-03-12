@@ -1,5 +1,5 @@
 {
-  "id": "c3573a65-4d44-46d7-88b8-878ab53ba45c",
+  "id": "cc82f514-93bb-4720-b055-1b421a119773",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -430,8 +430,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "title": {
-          "name": "title",
+        "name": {
+          "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
@@ -478,10 +478,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "transactions_transaction_type_id_transaction_type_id_fk": {
-          "name": "transactions_transaction_type_id_transaction_type_id_fk",
+        "transactions_transaction_type_id_transaction_types_id_fk": {
+          "name": "transactions_transaction_type_id_transaction_types_id_fk",
           "tableFrom": "transactions",
-          "tableTo": "transaction_type",
+          "tableTo": "transaction_types",
           "columnsFrom": [
             "transaction_type_id"
           ],
@@ -511,8 +511,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.transaction_type": {
-      "name": "transaction_type",
+    "public.transaction_types": {
+      "name": "transaction_types",
       "schema": "",
       "columns": {
         "id": {

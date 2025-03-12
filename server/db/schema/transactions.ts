@@ -2,11 +2,11 @@ import {
   pgTable,
   serial,
   varchar,
-  decimal,
   timestamp,
   text,
   integer,
   boolean,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -23,7 +23,7 @@ export const transactions = pgTable("transactions", {
   categoryId: integer("category_id")
     .references(() => categories.id)
     .notNull(),
-  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   isRecurring: boolean("is_recurring").notNull().default(false),
