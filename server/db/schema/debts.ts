@@ -8,7 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
-import { debtPayments } from "./debt_payments";
+import { debtPayments } from "./debt-payments";
 import { relations } from "drizzle-orm";
 
 export const debts = pgTable("debts", {

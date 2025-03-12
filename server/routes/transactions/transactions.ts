@@ -5,7 +5,7 @@ import { transactions as transactionTable } from "../../db/schema/transactions";
 import { insertTransactionSchema } from "../../db/schema/transactions";
 import { eq, desc, sum, and, count, is, gte } from "drizzle-orm";
 import { categories as categoryTable } from "../../db/schema/categories";
-import { transactionTypes as transactionTypeTable } from "../../db/schema/transaction_types";
+import { transactionTypes as transactionTypeTable } from "../../db/schema/transaction-types";
 import { convertKeysToSnakeCase } from "../../lib/caseFormatter";
 
 const postSchema = insertTransactionSchema.omit({
@@ -69,7 +69,7 @@ export const transactionsRoute = new Hono()
 
       return c.json({ result, success: true }, 201);
     } catch (error) {
-      return c.json(``
+      return c.json(
         {
           error: "Failed to create transaction",
           success: false,

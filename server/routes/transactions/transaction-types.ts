@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import { transactionTypes as transactionTypeTable } from "../../db/schema/transaction_types";
-import { insertTransactionTypeSchema } from "../../db/schema/transaction_types";
+import { transactionTypes as transactionTypeTable } from "../../db/schema/transaction-types";
+import { insertTransactionTypeSchema } from "../../db/schema/transaction-types";
 
 import { db } from "../../db";
 import { zValidator } from "@hono/zod-validator";

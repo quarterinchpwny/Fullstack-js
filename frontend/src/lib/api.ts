@@ -22,7 +22,7 @@ export async function createTransaction(data: {
   const response = await api.transactions.$post({
     json: {
       ...data,
-      amount: data.amount,
+      amount: data.amount.toString(), //Stored as string but type numeric for precision
       isRecurring: false,
       recurringFrequency: null,
       transationTypeId: data.transationTypeId,

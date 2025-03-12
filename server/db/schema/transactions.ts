@@ -11,9 +11,9 @@ import {
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { categories } from "./categories";
-import { transactionTypes } from "./transaction_types";
+import { transactionTypes } from "./transaction-types";
 import { relations } from "drizzle-orm";
-import { debtPayments } from "./debt_payments";
+import { debtPayments } from "./debt-payments";
 
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
@@ -51,7 +51,9 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
 
 export const insertTransactionSchema = createInsertSchema(transactions, {
   name: z.string().min(3, { message: "Name must be at least 3 characters" }),
-  amount: z.number(),
+  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, {
+    message: "Amount must be a valid number",
+  }),
   isRecurring: z.boolean(),
   recurringFrequency: z.enum(["monthly", "weekly", "daily"]).nullable(),
   categoryId: z.number(),
