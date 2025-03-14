@@ -6,8 +6,7 @@
     "start": "bun server/index.ts",
     "dev": "bun --watch server/index.ts",
     "frontend": "bun run --cwd ./frontend dev -- --port=7331",
-    "build": "bun run --cwd ./frontend build",
-    "migrate-remote": "bun migrate.ts"
+    "build": "bun run --cwd ./frontend build"
   },
   "devDependencies": {
     "@types/bun": "latest"
