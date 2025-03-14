@@ -4,7 +4,7 @@ import { db } from "../db";
 import { categories as categoryTable } from "../db/schema/categories";
 import { insertCategoriesSchema } from "../db/schema/categories";
 import { eq, desc, sum, and, count } from "drizzle-orm";
-
+import { convertKeysToSnakeCase } from "../lib/caseFormatter";
 const postSchema = insertCategoriesSchema.omit({
   createdAt: true,
   id: true,
@@ -14,7 +14,11 @@ export const categoriesRoute = new Hono()
   .get("/", async (c) => {
     try {
       const data = await db.select().from(categoryTable);
-      return c.json({ categories: data, success: true });
+
+      return c.json({
+        categories: convertKeysToSnakeCase(data),
+        success: true,
+      });
     } catch (error) {
       return c.json(
         { error: "Failed to fetch categories", success: false },

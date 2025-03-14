@@ -48,7 +48,7 @@ export async function deleteTransaction({ id }: { id: number }) {
   }
 }
 export async function getSummary({ period }: { period: string }) {
-  const res = await api.transactions["summary"].$get({
+  const res = await api.transactions.summary[":period?"].$get({
     param: { period: period },
   });
 

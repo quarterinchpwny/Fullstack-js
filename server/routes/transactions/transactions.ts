@@ -146,5 +146,6 @@ export const transactionsRoute = new Hono()
           )
         : baseQuery;
     const data = await query.execute();
+
     return c.json({ success: true, total: data[0].total });
   });

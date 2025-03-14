@@ -26,7 +26,11 @@ export function TransactionForm({
   }) => void;
   isSubmitting: boolean;
   error: string | null;
-  categories: { id: string; name: string }[];
+  categories: {
+    transaction_type_id: number;
+    id: string;
+    name: string;
+  }[];
   transactionTypes: { id: string; name: string }[];
 }) {
   const form = useForm({
@@ -45,6 +49,7 @@ export function TransactionForm({
       });
     },
   });
+
   return (
     <form
       onSubmit={(e) => {
@@ -55,7 +60,6 @@ export function TransactionForm({
     >
       <div className="space-y-4">
         <div>
-          <Label htmlFor="title">Title</Label>
           <form.Field
             name="name"
             validators={{
@@ -83,7 +87,6 @@ export function TransactionForm({
         </div>
 
         <div>
-          <Label htmlFor="amount">Amount</Label>
           <form.Field
             name="amount"
             validators={{
@@ -109,47 +112,95 @@ export function TransactionForm({
             )}
           </form.Field>
         </div>
-
         <div>
-          <Label htmlFor="categoryId">Category</Label>
-          <form.Field
-            name="categoryId"
-            children={(field) => (
-              <Select value={field.state.value} onValueChange={field.setValue}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="transactionTypeId">Transaction Type</Label>
           <form.Field
             name="transactionTypeId"
-            children={(field) => (
-              <Select value={field.state.value} onValueChange={field.setValue}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select transaction type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {transactionTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.id}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            validators={{
+              onChange: ({ value }) =>
+                !value ? "Transaction type is required" : undefined,
+            }}
+          >
+            {(field) => (
+              <div className="space-y-2">
+                <Label htmlFor="transactionTypeId">Transaction type</Label>
+                <Select
+                  value={field.state.value ? String(field.state.value) : ""}
+                  onValueChange={(value) => {
+                    field.handleChange(value);
+                    form.setFieldValue("categoryId", ""); // Reset categoryId when transactionTypeId changes
+                  }}
+                  required
+                >
+                  <SelectTrigger id="transactionTypeId">
+                    <SelectValue placeholder="Select a transaction type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {transactionTypes.map((type) => (
+                      <SelectItem key={type.id} value={String(type.id)}>
+                        {type.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {field.state.meta.errors && (
+                  <p className="text-sm text-destructive">
+                    {field.state.meta.errors}
+                  </p>
+                )}
+              </div>
             )}
-          />
+          </form.Field>
+        </div>
+        <div>
+          <form.Field
+            name="categoryId"
+            validators={{
+              onChange: ({ value }) =>
+                !value ? "Category is required" : undefined,
+            }}
+          >
+            {(field) => {
+              const selectedTransactionTypeId = Number(
+                form.state.values.transactionTypeId
+              );
+              const availableCategories = categories.filter(
+                (category) =>
+                  category.transaction_type_id === selectedTransactionTypeId
+              );
+
+              return (
+                <div className="space-y-2">
+                  <Label htmlFor="categoryId">Category</Label>
+                  <Select
+                    value={field.state.value ? String(field.state.value) : ""}
+                    onValueChange={field.handleChange}
+                    required={availableCategories.length > 0}
+                  >
+                    <SelectTrigger id="categoryId">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableCategories.map((category) => (
+                        <SelectItem
+                          key={category.id}
+                          value={String(category.id)}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {field.state.meta.errors && (
+                    <p className="text-sm text-destructive">
+                      {field.state.meta.errors}
+                    </p>
+                  )}
+                </div>
+              );
+            }}
+          </form.Field>
         </div>
 
         {error && <div className="text-red-500">{error}</div>}

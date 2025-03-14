@@ -24,6 +24,7 @@ export const debtPayments = pgTable("debt_payments", {
   transactionId: integer("transaction_id")
     .references(() => transactions.id)
     .notNull(),
+  source: varchar("source", { length: 255 }).notNull(),
   amountPaid: numeric("amount_paid", { precision: 10, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

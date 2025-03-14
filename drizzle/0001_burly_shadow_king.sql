@@ -1,0 +1,1 @@
+ALTER TABLE "debt_payments" ADD COLUMN "source" varchar(255) NOT NULL;
