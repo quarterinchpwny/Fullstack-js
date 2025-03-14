@@ -10,9 +10,9 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 import { categories } from "./categories";
 import { transactionTypes } from "./transaction-types";
-import { relations } from "drizzle-orm";
 import { debtPayments } from "./debt-payments";
 
 export const transactions = pgTable("transactions", {
@@ -34,6 +34,7 @@ export const transactions = pgTable("transactions", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
+
 export const transactionsRelations = relations(transactions, ({ one }) => ({
   category: one(categories, {
     fields: [transactions.categoryId],

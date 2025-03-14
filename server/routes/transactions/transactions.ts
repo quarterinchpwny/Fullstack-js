@@ -117,18 +117,9 @@ export const transactionsRoute = new Hono()
   .get("/summary/:period?", async (c) => {
     let baseQuery = db
       .select({
-        category: categoryTable.name,
         total: sum(transactionTable.amount),
       })
-      .from(transactionTable)
-      .leftJoin(
-        categoryTable,
-        eq(transactionTable.categoryId, categoryTable.id)
-      )
-      .leftJoin(
-        transactionTypeTable,
-        eq(transactionTable.transationTypeId, transactionTypeTable.id)
-      );
+      .from(transactionTable);
 
     const period = c.req.param("period");
     const query =
@@ -154,7 +145,6 @@ export const transactionsRoute = new Hono()
             )
           )
         : baseQuery;
-
-    const result = await query.groupBy(categoryTable.name);
-    return c.json({ result });
+    const data = await query.execute();
+    return c.json({ success: true, total: data[0].total });
   });

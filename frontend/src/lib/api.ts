@@ -47,7 +47,15 @@ export async function deleteTransaction({ id }: { id: number }) {
     throw new Error("server error");
   }
 }
+export async function getSummary({ period }: { period: string }) {
+  const res = await api.transactions["summary"].$get({
+    param: { period: period },
+  });
 
+  if (!res.ok) {
+    throw new Error("server error");
+  }
+}
 export async function getCategories() {
   const response = await api.categories.$get();
   if (!response.ok) {

@@ -23,11 +23,14 @@ export const Route = createFileRoute("/")({
 });
 
 async function getTotalSpent() {
-  const response = await api.expenses["total-spent"].$get();
+  const response = await api.transactions.summary[":period?"].$get({
+    param: { period: "week" },
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch data");
   }
   const data = await response.json();
+
   return data;
 }
 
@@ -50,13 +53,11 @@ function Index() {
                 </p>
                 {isPending ? (
                   <p className="text-red-500">Loading...</p>
-                ) : data &&
-                  data.totalSpent !== undefined &&
-                  data.totalSpent !== null ? (
+                ) : data && data.total !== undefined && data.total !== null ? (
                   <>
                     <p className=" text-2xl font-bold text-red-700 dark:text-red-300">
                       ${" "}
-                      {Number(data.totalSpent).toLocaleString(undefined, {
+                      {Number(data.total).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}

@@ -1,0 +1,2 @@
+ALTER TABLE "categories" ADD COLUMN "transaction_type_id" integer;--> statement-breakpoint
+ALTER TABLE "categories" ADD CONSTRAINT "categories_transaction_type_id_transaction_types_id_fk" FOREIGN KEY ("transaction_type_id") REFERENCES "public"."transaction_types"("id") ON DELETE no action ON UPDATE no action;

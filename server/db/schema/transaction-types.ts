@@ -10,6 +10,7 @@ import { z } from "zod";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { transactions } from "./transactions";
 import { relations } from "drizzle-orm";
+import { categories } from "./categories";
 
 export const transactionTypes = pgTable("transaction_types", {
   id: serial("id").primaryKey(),
@@ -23,6 +24,7 @@ export const transactionTypeRelations = relations(
   transactionTypes,
   ({ many }) => ({
     transactions: many(transactions),
+    categories: many(categories),
   })
 );
 
