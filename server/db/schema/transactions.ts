@@ -20,9 +20,8 @@ export const transactions = pgTable("transactions", {
   transationTypeId: integer("transaction_type_id").references(
     () => transactionTypes.id
   ),
-  categoryId: integer("category_id")
-    .references(() => categories.id)
-    .notNull(),
+  categoryId: integer("category_id").references(() => categories.id),
+
   amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),

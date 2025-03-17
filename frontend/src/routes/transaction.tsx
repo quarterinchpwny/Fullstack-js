@@ -144,7 +144,7 @@ function Transactions() {
         <div className="flex justify-center">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      ) : transactionData && transactionData.transactions.length > 0 ? (
+      ) : transactionData && transactionData.data.transactions.length > 0 ? (
         <div className="space-y-4">
           <div className="rounded-md border">
             <Table>
@@ -157,7 +157,7 @@ function Transactions() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactionData?.transactions.map(
+                {transactionData?.data.transactions.map(
                   (transaction: {
                     id: string;
                     name: string;
@@ -168,8 +168,18 @@ function Transactions() {
                   }) => (
                     <TableRow key={transaction.id}>
                       <TableCell>{transaction.name}</TableCell>
-                      <TableCell>${transaction.amount}</TableCell>
-                      <TableCell>{transaction.category.name}</TableCell>
+                      <TableCell>
+                        ${" "}
+                        {transaction.amount.toLocaleString("en-US", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </TableCell>
+                      <TableCell>
+                        {transaction.category.name
+                          ? transaction.category.name
+                          : "N/A"}
+                      </TableCell>
                       <TableCell>
                         <DeleteButton expenseId={Number(transaction.id)} />
                       </TableCell>

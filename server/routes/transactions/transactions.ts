@@ -3,10 +3,10 @@ import { zValidator } from "@hono/zod-validator";
 import { db } from "../../db";
 import { transactions as transactionTable } from "../../db/schema/transactions";
 import { insertTransactionSchema } from "../../db/schema/transactions";
-import { eq, desc, sum, and, count, is, gte } from "drizzle-orm";
+import { eq, desc, sum, and, count, is, gte, or } from "drizzle-orm";
 import { categories as categoryTable } from "../../db/schema/categories";
 import { transactionTypes as transactionTypeTable } from "../../db/schema/transaction-types";
-import { convertKeysToSnakeCase } from "../../lib/caseFormatter";
+import { convertKeysToSnakeCase, formatResponse } from "../../lib/api-utility";
 
 const postSchema = insertTransactionSchema.omit({
   createdAt: true,
@@ -16,6 +16,10 @@ const postSchema = insertTransactionSchema.omit({
 export const transactionsRoute = new Hono()
   .get("/", async (c) => {
     try {
+      const page = parseInt(c.req.query("page") || "1");
+      const limit = parseInt(c.req.query("limit") || "10");
+      const offset = (page - 1) * limit;
+
       const data = await db
         .select()
         .from(transactionTable)
@@ -26,7 +30,13 @@ export const transactionsRoute = new Hono()
         .leftJoin(
           transactionTypeTable,
           eq(transactionTable.transationTypeId, transactionTypeTable.id)
-        );
+        )
+        .limit(limit)
+        .offset(offset);
+
+      const totalCount = await db
+        .select({ count: count() })
+        .from(transactionTable);
 
       const flattened = data.map(
         ({ transactions, categories, transaction_types }) => ({
@@ -35,21 +45,25 @@ export const transactionsRoute = new Hono()
           transaction_type: { ...transaction_types },
         })
       );
-
-      return c.json({
+      const payload = {
+        total: totalCount[0].count,
+        page,
+        limit,
+        total_pages: Math.ceil(totalCount[0].count / limit),
         transactions: convertKeysToSnakeCase(flattened),
-        success: true,
-      });
-    } catch (error) {
+      };
+
       return c.json(
-        { error: "Failed to fetch transactions", success: false },
-        500
+        formatResponse(payload, 200, "Transactions fetched successfully")
       );
+    } catch (error) {
+      return c.json(formatResponse(null, 500, "Failed to fetch transactions"));
     }
   })
   .post("/", zValidator("json", postSchema), async (c) => {
     try {
       const transaction = c.req.valid("json");
+
       if (transaction.categoryId) {
         const category = await db
           .select()
@@ -57,46 +71,51 @@ export const transactionsRoute = new Hono()
           .where(eq(categoryTable.id, transaction.categoryId))
           .limit(1);
         if (category.length === 0) {
-          return c.json({ error: "Category not found", success: false }, 400);
+          return c.json(formatResponse(null, 400, "Category not found"));
         }
       }
       const result = await db
         .insert(transactionTable)
         .values({
           ...transaction,
+          categoryId:
+            transaction.categoryId === 0 ? null : transaction.categoryId,
         })
         .returning();
 
-      return c.json({ result, success: true }, 201);
-    } catch (error) {
       return c.json(
-        {
-          error: "Failed to create transaction",
-          success: false,
-        },
-        500
+        formatResponse(result, 201, "Transaction created successfully")
       );
+    } catch (error) {
+      console.log("error", error);
+      return c.json(formatResponse(null, 500, "Failed to create transaction"));
     }
   })
 
-  .get("/:id{[0-9]+}", (c) => {
+  .get("/:id{[0-9]+}", async (c) => {
     const id = Number.parseInt(c.req.param("id"));
     if (Number.isNaN(id)) {
-      return c.notFound();
+      return c.json(formatResponse(null, 404, "Transaction not found"));
     }
-    const transaction = db
+    const transaction = await db
       .select()
       .from(transactionTable)
       .where(eq(transactionTable.id, id));
-    if (transaction) {
-      return c.json({ transaction: transaction });
+    if (transaction.length > 0) {
+      return c.json(
+        formatResponse(
+          { transaction: transaction[0] },
+          200,
+          "Transaction found"
+        )
+      );
     }
-    return c.notFound();
+    return c.json(formatResponse(null, 404, "Transaction not found"));
   })
   .delete("/:id{[0-9]+}", async (c) => {
     const id = Number.parseInt(c.req.param("id"));
     if (Number.isNaN(id)) {
-      return c.notFound();
+      return c.json(formatResponse(null, 404, "Transaction not found"));
     }
     try {
       const transaction = await db
@@ -104,22 +123,37 @@ export const transactionsRoute = new Hono()
         .where(eq(transactionTable.id, id))
         .returning();
       if (transaction.length === 0) {
-        return c.notFound();
+        return c.json(formatResponse(null, 404, "Transaction not found"));
       }
-      return c.json({ transaction: transaction[0], success: true });
-    } catch (error) {
       return c.json(
-        { error: "Failed to delete transaction", success: false },
-        500
+        formatResponse(
+          { transaction: transaction[0] },
+          200,
+          "Transaction deleted successfully"
+        )
       );
+    } catch (error) {
+      return c.json(formatResponse(null, 500, "Failed to delete transaction"));
     }
   })
   .get("/summary/:period?", async (c) => {
     let baseQuery = db
       .select({
+        type: transactionTypeTable.name,
         total: sum(transactionTable.amount),
       })
-      .from(transactionTable);
+      .from(transactionTable)
+      .leftJoin(
+        transactionTypeTable,
+        eq(transactionTable.transationTypeId, transactionTypeTable.id)
+      )
+      .groupBy(transactionTypeTable.name)
+      .having(
+        or(
+          eq(transactionTypeTable.name, "Expense"),
+          eq(transactionTypeTable.name, "Income")
+        )
+      );
 
     const period = c.req.param("period");
     const query =
@@ -147,5 +181,19 @@ export const transactionsRoute = new Hono()
         : baseQuery;
     const data = await query.execute();
 
-    return c.json({ success: true, total: data[0].total });
+    const formattedData = data.reduce(
+      (acc, curr) => {
+        if (curr.type === "Expense") {
+          acc.total_expense = Number(curr.total ?? 0);
+        } else if (curr.type === "Income") {
+          acc.total_income = Number(curr.total ?? 0);
+        }
+        return acc;
+      },
+      { total_expense: 0, total_income: 0 }
+    );
+
+    return c.json(
+      formatResponse(formattedData, 200, "Summary fetched successfully")
+    );
   });

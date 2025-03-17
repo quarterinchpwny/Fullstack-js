@@ -25,3 +25,12 @@ export function convertKeysToSnakeCase(obj: any): any {
   // Return primitive values as-is
   return obj;
 }
+
+export function formatResponse(payload: any, code: number, message: string) {
+  const data = convertKeysToSnakeCase(payload);
+  return {
+    data,
+    code,
+    message,
+  };
+}

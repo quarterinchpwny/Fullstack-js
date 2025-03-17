@@ -53,11 +53,13 @@ function Index() {
                 </p>
                 {isPending ? (
                   <p className="text-red-500">Loading...</p>
-                ) : data && data.total !== undefined && data.total !== null ? (
+                ) : data &&
+                  data.total_expense !== undefined &&
+                  data.total_expense !== null ? (
                   <>
                     <p className=" text-2xl font-bold text-red-700 dark:text-red-300">
                       ${" "}
-                      {Number(data.total).toLocaleString(undefined, {
+                      {Number(data.total_expense).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
@@ -85,7 +87,27 @@ function Index() {
                 <p className="text-sm font-medium text-muted-foreground">
                   Total Income
                 </p>
-                <h3 className="text-2xl font-bold">1000</h3>
+                {isPending ? (
+                  <p className="text-red-500">Loading...</p>
+                ) : data &&
+                  data.total_income !== undefined &&
+                  data.total_income !== null ? (
+                  <>
+                    <p className=" text-2xl font-bold text-green-700 dark:text-green-300">
+                      ${" "}
+                      {Number(data.total_income).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </>
+                ) : error ? (
+                  <p className="text-red-500">
+                    Failed to load expenses ({error.message})
+                  </p>
+                ) : (
+                  <p className="text-red-500">No expenses recorded yet</p>
+                )}
               </div>
               <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-full">
                 <ArrowUpCircle className="h-6 w-6 text-green-500 dark:text-green-400" />
@@ -101,7 +123,29 @@ function Index() {
                 <p className="text-sm font-medium text-muted-foreground">
                   Current Balance
                 </p>
-                <h3 className="text-2xl font-bold">1000</h3>
+                {isPending ? (
+                  <p className="text-red-500">Loading...</p>
+                ) : data &&
+                  data.total_income !== undefined &&
+                  data.total_income !== null ? (
+                  <>
+                    <p className=" text-2xl font-bold text-blue-700 dark:text-blue-300">
+                      ${" "}
+                      {(
+                        Number(data.total_income) - Number(data.total_expense)
+                      ).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}
+                    </p>
+                  </>
+                ) : error ? (
+                  <p className="text-red-500">
+                    Failed to load expenses ({error.message})
+                  </p>
+                ) : (
+                  <p className="text-red-500">No expenses recorded yet</p>
+                )}
               </div>
               <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-full">
                 <DollarSign className="h-6 w-6 text-blue-500 dark:text-blue-400" />

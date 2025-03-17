@@ -155,10 +155,10 @@ export function TransactionForm({
         <div>
           <form.Field
             name="categoryId"
-            validators={{
-              onChange: ({ value }) =>
-                !value ? "Category is required" : undefined,
-            }}
+            // validators={{
+            //   onChange: ({ value }) =>
+            //     !value ? "Category is required" : undefined,
+            // }}
           >
             {(field) => {
               const selectedTransactionTypeId = Number(
@@ -175,7 +175,7 @@ export function TransactionForm({
                   <Select
                     value={field.state.value ? String(field.state.value) : ""}
                     onValueChange={field.handleChange}
-                    required={availableCategories.length > 0}
+                    // required={availableCategories.length > 0}
                   >
                     <SelectTrigger id="categoryId">
                       <SelectValue placeholder="Select a category" />

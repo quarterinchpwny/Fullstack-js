@@ -4,7 +4,7 @@ import { db } from "../db";
 import { categories as categoryTable } from "../db/schema/categories";
 import { insertCategoriesSchema } from "../db/schema/categories";
 import { eq, desc, sum, and, count } from "drizzle-orm";
-import { convertKeysToSnakeCase } from "../lib/caseFormatter";
+import { convertKeysToSnakeCase } from "../lib/api-utility";
 const postSchema = insertCategoriesSchema.omit({
   createdAt: true,
   id: true,
