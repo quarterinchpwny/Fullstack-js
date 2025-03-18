@@ -11,9 +11,9 @@ function NavBar() {
       <Link to="/" className="[&.active]:font-bold">
         Home
       </Link>{" "}
-      {/* <Link to="/about" className="[&.active]:font-bold">
+      <Link to="/about" className="[&.active]:font-bold">
         About
-      </Link> */}
+      </Link>
       <Link to="/transaction" className="[&.active]:font-bold">
         List
       </Link>
