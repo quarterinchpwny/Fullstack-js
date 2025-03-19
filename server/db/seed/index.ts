@@ -23,6 +23,7 @@ async function main() {
         { name: "Transfer", description: "Transfer to savings" },
         { name: "Debt payment", description: "Debt payment" },
         { name: "Loan Received", description: "Loan received from bank" },
+        {name:"Savings", description:"Savings"}
       ];
 
       await seed(db, { transactionTypes }).refine((f) => ({
