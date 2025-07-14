@@ -1,0 +1,23 @@
+Summary of recent changes:
+
+Backend:
+- Added `bcryptjs` for password hashing and `jsonwebtoken` for JWT generation.
+- Modified `/login` and `/register` endpoints in `server/routes/auth.ts` to:
+    - Hash passwords before storing them (registration).
+    - Verify hashed passwords (login).
+    - Generate JWTs upon successful login/registration.
+    - Set JWTs as HTTP-only cookies.
+    - Handle user existence check during registration.
+- Updated the `/me` endpoint to verify the JWT from the cookie and return user data.
+- Added a `JWT_SECRET` environment variable (please set this in your `.env` file for production).
+
+Frontend:
+- Implemented redirection using `useNavigate` from `@tanstack/react-router` after successful login or signup, redirecting to `/transaction`.
+
+To make this fully functional, you need to:
+1. Set `JWT_SECRET`: Create a `.env` file in your project root (if you don't have one) and add a strong, random string for `JWT_SECRET`. For example:
+   ```
+   JWT_SECRET="your_super_secret_jwt_key_here"
+   ```
+2. Install frontend dependencies: Run `bun install` in the `frontend` directory.
+3. Start the development servers: Run `bun dev` in both the root and `frontend` directories.

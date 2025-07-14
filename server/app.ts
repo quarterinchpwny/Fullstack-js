@@ -4,6 +4,7 @@ import { logger } from "hono/logger";
 import { transactionsRoute } from "./routes/transactions/transactions";
 import { transactionTypesRoute } from "./routes/transactions/transaction-types";
 import { categoriesRoute } from "./routes/categories";
+import { authRoute } from './routes/auth';
 
 const app = new Hono();
 
@@ -16,7 +17,8 @@ const apiRoutes = app
   .basePath("/api")
   .route("/transactions", transactionsRoute)
   .route("/transaction-types", transactionTypesRoute)
-  .route("/categories", categoriesRoute);
+  .route("/categories", categoriesRoute)
+  .route("/auth", authRoute);
 
 export default app;
 export type ApiRoutes = typeof apiRoutes;
