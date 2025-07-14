@@ -1,11 +1,9 @@
-import { Outlet } from '@tanstack/react-router';
-import { Toaster } from '@/components/ui/toaster';
+import { Outlet } from "@tanstack/react-router";
 
 function App() {
   return (
     <>
       <Outlet />
-      <Toaster />
     </>
   );
 }
