@@ -18,12 +18,12 @@ async function main() {
 
     if (existingTransactionTypes.length === 0) {
       const transactionTypeData = [
-        { name: "Income", description: "Income from work" },
-        { name: "Expense", description: "Expense on food" },
+        { name: "Income", description: "Income from work", id: 1 },
+        { name: "Expense", description: "Expense on food", id: 2 },
         { name: "Transfer", description: "Transfer to savings" },
         { name: "Debt payment", description: "Debt payment" },
         { name: "Loan Received", description: "Loan received from bank" },
-        {name:"Savings", description:"Savings"}
+        { name: "Savings", description: "Savings" },
       ];
 
       await seed(db, { transactionTypes }).refine((f) => ({

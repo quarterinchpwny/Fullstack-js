@@ -1,5 +1,5 @@
 {
-  "id": "020dc8c3-7838-4f9c-8de3-9dfa8bd5a886",
+  "id": "60f16160-05b8-4f16-971f-0b767dc2fad3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -160,12 +160,6 @@
         "transaction_id": {
           "name": "transaction_id",
           "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "source": {
-          "name": "source",
-          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -493,7 +487,7 @@
           "name": "category_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "amount": {
           "name": "amount",
